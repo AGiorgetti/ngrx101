@@ -4,7 +4,9 @@ import { NgModule } from '@angular/core';
 import { StoreModule } from '@ngrx/store';
 
 import { AppComponent } from './app.component';
+
 import { initialAppState } from './store/state';
+import { reducers } from './store/reducers';
 
 @NgModule({
   declarations: [
@@ -12,7 +14,7 @@ import { initialAppState } from './store/state';
   ],
   imports: [
     BrowserModule,
-    StoreModule.forRoot(null, { initialState: initialAppState })
+    StoreModule.forRoot(reducers, { initialState: initialAppState })
   ],
   providers: [],
   bootstrap: [AppComponent]
