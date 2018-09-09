@@ -105,6 +105,37 @@ and in the AppModule:
 
     StoreModule.forRoot(reducers, { initialState: initialAppState })
 
+6) Selectors - access slices of state exposed as observables, so we get proper notifications when the state changes.
+
+Inject the `Store` object and use the `select` operator to a slice of the state.
+
+Pass it a string:
+
+    store.pipe(select('counterState'));
+
+or (Best Practice) use a selector function:
+
+    import { createSelector } from '@ngrx/store';
+    import { IAppState } from '../state';
+
+    export const counterSelector = createSelector((state: IAppState) => state.counterState);
+
+    ...
+
+    this.counter = store.pipe(select(counterSelector));
+
+selection functions can be composed!
+
+7) Dispatch Actions to the Store
+
+Inject the `Store` object and call the `dispatch` method:
+
+    this.store.dispatch(new Increment());
+
+
+
+
+
 
 
 
