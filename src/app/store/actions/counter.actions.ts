@@ -5,6 +5,7 @@ export enum CounterActionTypes {
   DECREMENT = '[Counter] Decrement',
   FAIL = '[Counter] Fail',
   RESET = '[Counter] Reset',
+  RANDOM_FAILURE = '[Counter] Random Failure',
 }
 
 export class Increment implements Action {
@@ -25,4 +26,8 @@ export class Reset implements Action {
   constructor(public payload: number) {}
 }
 
-export type CounterActions = Increment | Decrement | Fail | Reset;
+export class RandomFailure implements Action {
+  readonly type = CounterActionTypes.RANDOM_FAILURE;
+}
+
+export type CounterActions = Increment | Decrement | Fail | Reset | RandomFailure;

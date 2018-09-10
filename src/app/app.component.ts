@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { ICounterState, IAppState } from './store/state';
+import { select, Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import { Store, select } from '@ngrx/store';
+import { Decrement, Fail, Increment, RandomFailure, Reset } from './store/actions';
 import { counterSelector } from './store/selectors';
-import { CounterActions, Increment, Decrement, Reset, Fail } from './store/actions';
+import { IAppState, ICounterState } from './store/state';
 
 @Component({
   selector: 'app-root',
@@ -13,13 +13,13 @@ import { CounterActions, Increment, Decrement, Reset, Fail } from './store/actio
 export class AppComponent {
   public title = 'ngrx101';
 
-  public counter: Observable<ICounterState>;
+  public counter$: Observable<ICounterState>;
 
   constructor(
     private store: Store<IAppState>
   ) {
     // this.counter = store.pipe(select('counterState'));
-    this.counter = store.pipe(select(counterSelector));
+    this.counter$ = store.pipe(select(counterSelector));
   }
 
   public increment() {
@@ -36,5 +36,9 @@ export class AppComponent {
 
   public reset() {
     this.store.dispatch(new Reset(0));
+  }
+
+  public randomFailure() {
+    this.store.dispatch(new RandomFailure());
   }
 }
