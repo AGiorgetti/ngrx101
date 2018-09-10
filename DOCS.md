@@ -5,6 +5,7 @@ The code will be partially rewritten and presented in a different order to 'bett
 
 - `@ngrx/store` - RxJS powered state management for Angular applications, inspired by Redux.
 - `@ngrx/effects` - Side Effect model for @ngrx/store.
+- `@ngrx/store-devtools` - Store instrumentation that enables a powerful time-travelling debugger.
 - `@ngrx/router-store` - Bindings to connect the Angular Router to ngrx/store.
 
 ## ngrx/store
@@ -80,6 +81,8 @@ in the AppModule:
 
 A Reducer is a function that takes two arguments: the current state and the action to perform, it will return the new instance of the state.
 
+**WARNING: do NOT mutate the state: always return a new oject for the state, this way we guarantee immutability!**
+
     export function counterReducer(state: ICounterState, action: CounterActions): ICounterState {
       switch (action.type) {
         case CounterActionTypes.INCREMENT: {
@@ -133,6 +136,10 @@ selection functions can be composed!
 Inject the `Store` object and call the `dispatch` method:
 
     this.store.dispatch(new Increment());
+
+**Best Practice**
+
+The state should be normalized: refer to [redux documentaion](https://redux.js.org/recipes/structuringreducers/normalizingstateshape) for better explanation.
 
 ## ngrx/effects
 
@@ -219,7 +226,34 @@ Side effect that might not dispatch actions given some conditions, there are two
 
 1- Return / Dispatch a no-op action.
 
-2- use the observable .filter() operator to avoid the observable proceed if the requirements are not mach
+2- use the observable .filter() operator to avoid the observable proceed if the requirements are not mach.
+
+## ngrx/store-devtools
+
+Store instrumentation that enables a powerful time-travelling debugger.
+
+    npm install @ngrx/store-devtools --save
+
+Instrumentation with the Chrome / Firefox Extension
+
+1- Download the [Redux Devtools Extension](https://github.com/zalmoxisus/redux-devtools-extension/).
+
+2- In your AppModule add instrumentation to the module imports using **StoreDevtoolsModule.instrument()**:
+
+    import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+    import { environment } from '../environments/environment'; // Angular CLI environemnt
+
+    @NgModule({
+      imports: [
+        StoreModule.forRoot(reducers),
+        // Instrumentation must be imported after importing StoreModule (config is optional)
+        StoreDevtoolsModule.instrument({
+          maxAge: 25, // Retains last 25 states
+          logOnly: environment.production, // Restrict extension to log-only mode
+        }),
+      ],
+    })
+    export class AppModule {}
 
 ## ngrx/router-store
 
