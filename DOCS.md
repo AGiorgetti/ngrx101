@@ -1,10 +1,11 @@
 # ngrx
 
-This sample project will reuse ideas and code from the official ngrx project documentation,
-partially rewritten and presented in a different order to 'better' explain the ngrx workflow.
+This sample project will reuse some ideas and code from the official ngrx project documentation,
+The code will be partially rewritten and presented in a different order to 'better' explain the ngrx workflow.
 
 - `@ngrx/store` - RxJS powered state management for Angular applications, inspired by Redux.
 - `@ngrx/effects` - Side Effect model for @ngrx/store.
+- `@ngrx/router-store` - Bindings to connect the Angular Router to ngrx/store.
 
 ## ngrx/store
 
@@ -19,13 +20,13 @@ Core principles:
 
 These core principles enable building components that can use the `OnPush` change detection strategy to optimize the Angular application.
 
-When we think about the state inside ngrx/store we should think about a database we can query over (using the selector functions).
+When we think about the state inside ngrx/store, we should think about a database we can query over (using some selector functions).
 
 Using redux or ngrx to write an application is much like implementing it following the CQRS guidelines and patterns:
 
-- Commands / Events == Actions
-- Projections == State -> Selectors || Actions -> Reducers -> State -> Selectors
-- Command -> Aggregate -> Event == Action -> Reducer -> State || Action -> (Side)Effects -> Actions
+- **Message Driven**: Commands / Events == Actions
+- **Read pipeline**: Projections == State -> Selectors || Actions -> Reducers -> State -> Selectors
+- **Write pipeline**: Command -> Aggregate -> Event == Action -> Reducer -> State || Action -> (Side)Effects -> Actions
 
 There's an emphasized separation between a read and a write pipeline, like the CQRS approach.
 
@@ -39,10 +40,9 @@ Then import the `StoreModule` in the AppModule.
 
 ### The Basic ngrx building blocks and 'workflow'
 
-1) **State**: start defining the application State;
+**1) State**: start defining the application State;
    
-   WARNING: the State should be treated as an IMMUTABLE object, you are not allowed to change
-            the value of a single property!
+WARNING: the State should be treated as an IMMUTABLE object, you are not allowed to change the value of a single property!
 
     export interface ICounterState {
       count: number;
@@ -54,7 +54,7 @@ Then import the `StoreModule` in the AppModule.
       faulty: false;
     }
 
-2) Good practice: provide a value to initialize the state:
+**2) Good practice**: provide a state **initial value** to the store:
 
     export const initialAppState: IAppState = {
       counterState: initialCounterState
@@ -64,7 +64,7 @@ in the AppModule:
 
     StoreModule.forRoot(null, { initialState: initialAppState })
 
-3) **Action**, tell the application what to do in order to change the state:
+**3) Action**: tell the application what to do in order to change the state:
 
     export enum CounterActionTypes {
       INCREMENT = '[Counter] Increment',
@@ -74,7 +74,9 @@ in the AppModule:
       readonly type = CounterActionTypes.INCREMENT;
     }
 
-4) **Reducer**, how the application react to actions, how the state is changed.
+    export type CounterActions = Increment;
+
+**4) Reducer**: how the application react to actions; how the state is changed.
 
 A Reducer is a function that takes two arguments: the current state and the action to perform, it will return the new instance of the state.
 
@@ -93,9 +95,9 @@ A Reducer is a function that takes two arguments: the current state and the acti
       }
     }
 
-5) Configure the StoreModule with all the reducers, we must feed the StoreModule.forRoot() function with an ActionReducerMap<TState> object that provide the references to the reducers functions.
+**5) Configure the StoreModule** with all the reducers: we must feed the **StoreModule.forRoot()** function with an **ActionReducerMap< TState >** object that provide the references to the reducers functions.
 
-I usually add this configuration oject to the index.ts file inside the reducers folder.
+I usually add this configuration object to the index.ts file inside the reducers folder.
 
     export const reducers: ActionReducerMap<IAppState> = {
       counterState: counterReducer
@@ -105,9 +107,9 @@ and in the AppModule:
 
     StoreModule.forRoot(reducers, { initialState: initialAppState })
 
-6) Selectors - access slices of state exposed as observables, so we get proper notifications when the state changes.
+**6) Selectors**: access slices of state exposed as observables, so we get proper notifications when the state changes.
 
-Inject the `Store` object and use the `select` operator to a slice of the state.
+Inject the `Store` object and use the `select` operator to get a slice of the state.
 
 Pass it a string:
 
@@ -126,7 +128,7 @@ or (Best Practice) use a selector function:
 
 selection functions can be composed!
 
-7) Dispatch Actions to the Store
+**7) Dispatch Actions** to the Store
 
 Inject the `Store` object and call the `dispatch` method:
 
@@ -142,7 +144,7 @@ Core principles:
 - Isolate side effects from components, allowing for more 'pure' components that select state and dispatch actions.
 - Provide new sources of actions to reduce state based on external interactions such as network requests, web socket messages and time-based events.
 
-Effects are injectable service classes, they use the following APIs.
+Effects are injectable service classes, they use the following APIs:
 
 **Effect decorator**
 
@@ -154,7 +156,7 @@ Represents an observable of all the actions dispatched to the store.
 
 Emits the latest action after the action has passed through all reducers.
 
-The '.ofType()' operator lets you filter for actions of a certain type, this way we can select which action to use inside the side effect.
+The '.ofType()' operator let us filter for actions of a certain type, this way we can select which action to use inside the side effect.
 
 ### Setup
 
@@ -166,7 +168,7 @@ import the EffectsModule in the AppModule
 
 ### Basic usage of ngrx/effects
 
-1) define the effect class and mark it with the injectable decorator:
+**1) define the effect class** and mark it with the _injectable_ decorator:
 
     import { Injectable } from '@angular/core';
     import { Actions } from '@ngrx/effects';
@@ -179,7 +181,7 @@ import the EffectsModule in the AppModule
       ) { }
     }
 
-2) in the index.ts export an array of all the effects and configure the EffectsModule to accept that array in the EffectsModule.forRoot() configuration function:
+**2) in the index.ts export an array of all the effects** and configure the EffectsModule to accept that array in the **EffectsModule.forRoot()** configuration function:
 
     export const effects = [ CounterEffects ];
 
@@ -187,7 +189,7 @@ import the EffectsModule in the AppModule
 
     EffectsModule.forRoot(effects)
 
-3) implement the side effects filtering the actions$ observable:
+**3) implement the side effect applying operators to the actions$** observable:
 
     @Effect()
     fail$ = this.actions$
@@ -213,14 +215,14 @@ Side effects that do not disptach actions at all, use the decorator parameter:
 
     @Effect({ dispatch: false })
 
-Side effect that might not dispatch an action given some conditions, you have two options:
+Side effect that might not dispatch actions given some conditions, there are two options to implement them:
 
 1- Return / Dispatch a no-op action.
 
-2- use the observable .filter() operator to avoid the observable proceed is the requirements are not mach
+2- use the observable .filter() operator to avoid the observable proceed if the requirements are not mach
 
+## ngrx/router-store
 
+At this point see the official documentation: the module is pretty simple and much of its implementation is a copy/paste.
 
-
-
-
+For a full implementation (with navigation actions and side effects too) head to: https://github.com/PrimordialCode/BigBrother
