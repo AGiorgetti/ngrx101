@@ -11,10 +11,14 @@ import { initialAppState } from './store/state';
 import { reducers } from './store/reducers';
 import { effects } from './store/effects';
 import { environment } from '../environments/environment';
+import { MemoizationComponent } from './memoization/memoization.component';
+import { HotOrColdComponent } from './hot-or-cold/hot-or-cold.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    MemoizationComponent,
+    HotOrColdComponent
   ],
   imports: [
     BrowserModule,

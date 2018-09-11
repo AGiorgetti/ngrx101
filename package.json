@@ -22,7 +22,7 @@
     "@angular/router": "6.1.7",
     "@ngrx/effects": "6.1.0",
     "@ngrx/store": "6.1.0",
-    "@ngrx/store-devtools": "^6.1.0",
+    "@ngrx/store-devtools": "6.1.0",
     "core-js": "2.5.7",
     "rxjs": "6.3.2",
     "zone.js": "0.8.26"

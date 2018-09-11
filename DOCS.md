@@ -137,6 +137,16 @@ Inject the `Store` object and call the `dispatch` method:
 
     this.store.dispatch(new Increment());
 
+**Best Practice - Cold Observables and Memoization**
+
+Are ngrx observables hot ot cold ? 
+
+Trying the sample code you'll see that they are Cold, so the selectors will be evaluated every time we subscribe to the observables.
+
+Using pure selector functions and Memoization  (provided by ngrx for free) help avoiding the performance issue.
+
+try to use the two components: <app-hot-or-cold> and <app-memoization>.
+
 **Best Practice**
 
 The state should be normalized: refer to [redux documentaion](https://redux.js.org/recipes/structuringreducers/normalizingstateshape) for better explanation.
