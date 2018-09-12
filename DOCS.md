@@ -1,6 +1,6 @@
 # ngrx
 
-This sample project will reuse some ideas and code from the official ngrx project documentation,
+This sample project will reuse some ideas and code from the official ngrx project documentation.
 The code will be partially rewritten and presented in a different order to 'better' explain the ngrx workflow.
 
 - `@ngrx/store` - RxJS powered state management for Angular applications, inspired by Redux.
@@ -14,9 +14,9 @@ ngrx/store is a controlled state container.
 
 Core principles: 
 
-- **State** is a single, **immutable data structure**.
-- **Actions** describe state changes.
-- **Reducers**: Pure functions (no side effect) that take the previous state and the next action to compute the new state.
+- **State**: is a single, **immutable data structure**.
+- **Actions**: describe state changes.
+- **Reducers**: pure functions (no side effect) that take the previous state and the next action to compute the new state.
 - State is accessed within the Store using **selector functions** that return an observable of a slice of the state.
 
 These core principles enable building components that can use the `OnPush` change detection strategy to optimize the Angular application.
@@ -52,10 +52,15 @@ WARNING: the State should be treated as an IMMUTABLE object, you are not allowed
 
     export interface IAppState {
       counterState: ICounterState;
-      faulty: false;
     }
 
 **2) Good practice**: provide a state **initial value** to the store:
+
+    
+    export const initialCounterState: ICounterState = {
+      count: 0,
+      faulty: false
+    };
 
     export const initialAppState: IAppState = {
       counterState: initialCounterState
@@ -63,7 +68,7 @@ WARNING: the State should be treated as an IMMUTABLE object, you are not allowed
 
 in the AppModule:
 
-    StoreModule.forRoot(null, { initialState: initialAppState })
+    StoreModule.forRoot(..., { initialState: initialAppState })
 
 **3) Action**: tell the application what to do in order to change the state:
 
@@ -79,7 +84,7 @@ in the AppModule:
 
 **4) Reducer**: how the application react to actions; how the state is changed.
 
-A Reducer is a function that takes two arguments: the current state and the action to perform, it will return the new instance of the state.
+A Reducer is a pure function that takes two arguments: the current state and the action to perform, it will return the new instance of the state.
 
 **WARNING: do NOT mutate the state: always return a new oject for the state, this way we guarantee immutability!**
 
@@ -141,9 +146,9 @@ Inject the `Store` object and call the `dispatch` method:
 
 Are ngrx observables hot ot cold ? 
 
-Trying the sample code you'll see that they are Cold, so the selectors will be evaluated every time we subscribe to the observables.
+Trying the sample code you'll see that the store observables are Cold, so the selectors will be evaluated every time we subscribe to the observables.
 
-Using pure selector functions and Memoization  (provided by ngrx for free) help avoiding the performance issue.
+Using pure selector functions and Memoization (provided by ngrx for free) help avoiding the performance issue.
 
 try to use the two components: <app-hot-or-cold> and <app-memoization>.
 
@@ -181,7 +186,7 @@ The '.ofType()' operator let us filter for actions of a certain type, this way w
 
 import the EffectsModule in the AppModule
 
-    EffectsModule.forFeature([...list of effects...])
+    EffectsModule.forRoot([...list of effects...])
 
 ### Basic usage of ngrx/effects
 
@@ -232,7 +237,7 @@ Side effects that do not disptach actions at all, use the decorator parameter:
 
     @Effect({ dispatch: false })
 
-Side effect that might not dispatch actions given some conditions, there are two options to implement them:
+Side effect that might not dispatch actions under some conditions, there are two ways to implement them:
 
 1- Return / Dispatch a no-op action.
 
@@ -240,7 +245,7 @@ Side effect that might not dispatch actions given some conditions, there are two
 
 ## ngrx/store-devtools
 
-Store instrumentation that enables a powerful time-travelling debugger.
+Instrumentation that enables a powerful time-travelling debugger.
 
     npm install @ngrx/store-devtools --save
 
@@ -267,6 +272,8 @@ Instrumentation with the Chrome / Firefox Extension
 
 ## ngrx/router-store
 
-At this point see the official documentation: the module is pretty simple and much of its implementation is a copy/paste.
+See the official documentation: the module is pretty simple and much of its implementation is a copy/paste.
+
+The idea is to hook to some Angular Router events and translate them in something that can be processed byt the Store..
 
 For a full implementation (with navigation actions and side effects too) head to: https://github.com/PrimordialCode/BigBrother

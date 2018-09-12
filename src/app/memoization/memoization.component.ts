@@ -1,9 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { IAppState } from '../store/state';
-import { Store, createSelector, select } from '@ngrx/store';
-import { counterSelector } from '../store/selectors';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { createSelector, select, Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { counterSelector } from '../store/selectors';
+import { IAppState } from '../store/state';
 
 const memoizedSelector = createSelector(
   counterSelector,
@@ -16,7 +15,8 @@ const memoizedSelector = createSelector(
 @Component({
   selector: 'app-memoization',
   templateUrl: './memoization.component.html',
-  styleUrls: ['./memoization.component.css']
+  styleUrls: ['./memoization.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MemoizationComponent implements OnInit {
 

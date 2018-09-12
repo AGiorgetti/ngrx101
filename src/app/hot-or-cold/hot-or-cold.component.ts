@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { IAppState } from '../store/state';
 import { Store, select } from '@ngrx/store';
 import { Observable } from 'rxjs';
@@ -8,7 +8,8 @@ import { tap } from 'rxjs/operators';
 @Component({
   selector: 'app-hot-or-cold',
   templateUrl: './hot-or-cold.component.html',
-  styleUrls: ['./hot-or-cold.component.css']
+  styleUrls: ['./hot-or-cold.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HotOrColdComponent implements OnInit {
 
