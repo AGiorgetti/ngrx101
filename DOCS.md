@@ -1,5 +1,7 @@
 # ngrx
 
+NgRx is a framework for building Reactive Applications in Angular.
+
 This sample project will reuse some ideas and code from the official ngrx project documentation.
 The code will be partially rewritten and presented in a different order to explain the ngrx workflow the way I understand and feel more comfortable doing it.
 
@@ -18,18 +20,20 @@ Core principles:
 
 - **State**: is a single, **immutable data structure**.
 - **Actions**: events dispatched from components and services: describe / trigger state changes.
-- **Reducers**: _pure functions_ (functions no side effect) that take the previous state and the next action to compute the new state.
+- **Reducers**: _pure functions_ (functions no side effect) that take the previous state and the next action to compute the new state> the reducers are the only way to change the state inside the Store.
 - State is accessed within the Store using **selector functions** (_pure functions_) that return an observable of a slice of the state.
 
 These core principles enable building components that can use the `OnPush` change detection strategy to optimize the Angular application.
 
 When we think about the state inside ngrx/store, we should think about a database we can query over (using some selector functions).
 
-Using redux or ngrx to write an application is much like implementing it following the CQRS guidelines and patterns:
+The result of the [query' is not finite value, but a stream of data delivered over time that describe the evolution of the system.
+
+Using redux or ngrx to write an application is much like implementing it following the CQRS guidelines and patterns in JavaScript / Angular world.
 
 - **Message Driven**: Commands / Events == Actions / (State Change) Notifications.
 - **Read pipeline**: Projections == State -> Selectors || Actions -> Reducers -> State -> Selectors.
-- **Write pipeline**: Command -> Aggregate -> Event == Action -> Reducer -> State || Action -> (Side)Effects -> Actions
+- **Write pipeline**: Command -> Aggregate -> Event == Action -> Reducer -> State || Action -> (Side)Effects -> Actions.
 
 There's an emphasized separation between a read and a write pipeline, like the CQRS approach.
 
@@ -85,9 +89,11 @@ in the AppModule:
 
 **4) Reducer**: defines how the application react to actions; how the state is changed.
 
-A Reducer is a pure function that takes two arguments: the current state and the action to perform, it will return the new instance of the state.
+A Reducer is a pure function that takes two arguments: the current state and the Action to perform, it will return the new instance of the state.
 
-**WARNING: do NOT mutate the state: always return a new oject, this is the only way we guarantee immutability!**
+Reducers operate synchronously!
+
+**WARNING: do NOT mutate the state! Always return a new oject, this is the only way we guarantee immutability!**
 
     export function counterReducer(state: ICounterState, action: CounterActions): ICounterState {
       switch (action.type) {
@@ -104,7 +110,7 @@ A Reducer is a pure function that takes two arguments: the current state and the
       }
     }
 
-**5) Configure the StoreModule** with all the reducers: we must feed the **StoreModule.forRoot()** function with an **ActionReducerMap&lt;TState&gt;** object that provide the references to the reducers functions.
+**5) Configure the StoreModule** with all the reducers: we must feed the **StoreModule.forRoot()** function with an **ActionReducerMap&lt;TState&gt;** object that provides the references to the reducers functions.
 
 I usually add this configuration object to the index.ts file inside the reducers folder.
 
@@ -116,9 +122,9 @@ and in the AppModule:
 
     StoreModule.forRoot(reducers, { initialState: initialAppState })
 
-**6) Selectors**: access slices of state exposed as observables, so we get proper notifications when the state changes.
+**6) Selectors**: expose a slice of the state as observables, thus we get proper notifications when the state changes.
 
-Inject the `Store` object and use the `select` operator to get a slice of the state.
+Inject the `Store` object and use the `select` operator to retrieve the Observable of the slice of state.
 
 Pass it a string:
 
@@ -133,7 +139,7 @@ or (Best Practice) use a selector function:
 
     ...
 
-    this.counter = store.pipe(select(counterSelector));
+    this.counter$ = store.pipe(select(counterSelector));
 
 selection functions can be composed!
 
@@ -143,15 +149,19 @@ Inject the `Store` object and call the `dispatch` method:
 
     this.store.dispatch(new Increment());
 
-**Best Practice - Cold Observables and Memoization**
+**Best Practice - beware of Unicast / Cold Observables and Memoization**
 
 Are ngrx observables hot ot cold ? 
 
-Trying the sample code you'll see that the store observables are Cold, so the selectors will be evaluated every time we subscribe to the observables.
+Playing with the sample code you'll see that the store observables are Unicast / Cold: the selectors will be evaluated every time we subscribe to the observables.
 
-Using pure selector functions and Memoization (provided by ngrx for free) help avoiding the performance issue.
+Be careful if you have a complex chain of operators and multiple bindings or subscriptions to it.
 
-try to use the two components: <app-hot-or-cold> and <app-memoization>.
+Using pure selector functions and Memoization (provided by ngrx for free) help avoid the performance issue.
+
+Selectors are pure functions so memoization (a sort-of caching can help reduce the potential performance hit).
+
+Try to use the two components: <app-hot-or-cold> and <app-memoization>.
 
 **Best Practice**
 
@@ -159,25 +169,26 @@ The state should be normalized: refer to [redux documentaion](https://redux.js.o
 
 ## ngrx/effects
 
-RxJS powered side effect model for @ngrx/store
+RxJS powered side effect model for @ngrx/store.
 
 Core principles: 
 
 - Listen for actions dispatched from @ngrx/store.
-- Isolate side effects from components, allowing for more 'pure' components that select state and dispatch actions.
-- Provide new sources of actions to reduce state based on external interactions such as network requests, web socket messages and time-based events.
+- Isolate side effects (access to external services, business logic, etc.) from components, allowing for more 'pure' components that select state and dispatch actions.
+- Provide new sources of actions based on external interactions such as network requests, web socket messages and time-based events.
+- An Effect must return a non empty array of Actrions that will optionally be fed to the Store by the library itself.
 
 Effects are injectable service classes, they use the following APIs:
 
-**Effect decorator**
+**Effect() decorator**
 
-The @Effect() decorator provides metadata to register observable side-effects in the effects class.
+The `@Effect()` decorator provides the metadata to register the effect in the Store.
 
-**Actions Observable**
+**Actions service**
 
-Represents an observable of all the actions dispatched to the store.
+Represents an observable 'endpoint' of all the actions dispatched to the store.
 
-Emits the latest action after the action has passed through all reducers.
+It emits the latest action after the action itself has passed through all reducers.
 
 The '.ofType()' operator let us filter for actions of a certain type, this way we can select which action to use inside the side effect.
 
@@ -204,7 +215,7 @@ import the EffectsModule in the AppModule
       ) { }
     }
 
-**2) in the index.ts export an array of all the effects** and configure the EffectsModule to accept that array in the **EffectsModule.forRoot()** configuration function:
+**2) Configure the EffectsModule to accept an array of all the effects**: in the index.ts export an array of all the effects and pass it to the **EffectsModule.forRoot()** configuration function:
 
     export const effects = [ CounterEffects ];
 
@@ -227,34 +238,34 @@ import the EffectsModule in the AppModule
               new Fail()
             ];
           } else {
-            return []; // warning: this will compile, but you'll get runtime errors
+            return []; // warning: this will compile, but you'll get runtime errors.
           }
         })
       );
 
 **Best practices**
 
-Side effects that do not disptach actions at all, use the decorator parameter:
+Side effects that do not dispatch actions at all, use the decorator parameter:
 
     @Effect({ dispatch: false })
 
-Side effect that might not dispatch actions under some conditions, there are two ways to implement them:
+Side effect that might not dispatch actions under some conditions, can be implemented in two ways:
 
 1- Return / Dispatch a no-op action.
 
-2- use the observable .filter() operator to avoid the observable proceed if the requirements are not mach.
+2- use the observable .filter() operator to avoid the observable proceed if the requirements are not met.
 
 ## ngrx/store-devtools
 
-Instrumentation that enables a powerful time-travelling debugger.
+Store-DevTools is an instrumentation that enables a powerful time-travelling debugger.
 
     npm install @ngrx/store-devtools --save
 
-Instrumentation with the Chrome / Firefox Extension
+Also install the Chrome / Firefox Extension
 
 1- Download the [Redux Devtools Extension](https://github.com/zalmoxisus/redux-devtools-extension/).
 
-2- In your AppModule add instrumentation to the module imports using **StoreDevtoolsModule.instrument()**:
+2- In your AppModule imports enable the instrumentation using **StoreDevtoolsModule.instrument()**:
 
     import { StoreDevtoolsModule } from '@ngrx/store-devtools';
     import { environment } from '../environments/environment'; // Angular CLI environemnt
@@ -273,8 +284,9 @@ Instrumentation with the Chrome / Firefox Extension
 
 ## ngrx/router-store
 
-See the official documentation: the module is pretty simple and much of its implementation is a copy/paste.
+The idea is to hook to Angular Router events and translate them in something that can be processed byt the Store..
 
-The idea is to hook to some Angular Router events and translate them in something that can be processed byt the Store..
+See the official documentation: the module is pretty simple and much of its implementation is a 
+copy/paste.
 
 For a full implementation (with navigation actions and side effects too) head to: https://github.com/PrimordialCode/BigBrother

@@ -1,13 +1,24 @@
 import { Action } from '@ngrx/store';
 
+/* an Action is a simple interface
+
+interface Action {
+  type: string;
+}
+
+*/
+
+// a string enum is a convenient way to avoid magic strings floating around
+// it will also enable / suport type inference when it comes to write the reducers
 export enum CounterActionTypes {
-  INCREMENT = '[Counter] Increment',
+  INCREMENT = '[Counter] Increment', // best practive: add some namespacing to provide context to the action
   DECREMENT = '[Counter] Decrement',
   FAIL = '[Counter] Fail',
   RESET = '[Counter] Reset',
   RANDOM_FAILURE = '[Counter] Random Failure',
 }
 
+// each action should be described by its own class
 export class Increment implements Action {
   readonly type = CounterActionTypes.INCREMENT;
 }
@@ -30,4 +41,7 @@ export class RandomFailure implements Action {
   readonly type = CounterActionTypes.RANDOM_FAILURE;
 }
 
+// the Union type if anther 'trick' to take advantage of TypeScript structural type checking
+// and type inference when writing the reducers (or whatever need to deal with
+// the stream of actions)
 export type CounterActions = Increment | Decrement | Fail | Reset | RandomFailure;
