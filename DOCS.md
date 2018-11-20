@@ -1,7 +1,9 @@
 # ngrx
 
 This sample project will reuse some ideas and code from the official ngrx project documentation.
-The code will be partially rewritten and presented in a different order to 'better' explain the ngrx workflow.
+The code will be partially rewritten and presented in a different order to explain the ngrx workflow the way I understand and feel more comfortable doing it.
+
+The following libraries will be used:
 
 - `@ngrx/store` - RxJS powered state management for Angular applications, inspired by Redux.
 - `@ngrx/effects` - Side Effect model for @ngrx/store.
@@ -15,9 +17,9 @@ ngrx/store is a controlled state container.
 Core principles: 
 
 - **State**: is a single, **immutable data structure**.
-- **Actions**: describe state changes.
-- **Reducers**: pure functions (no side effect) that take the previous state and the next action to compute the new state.
-- State is accessed within the Store using **selector functions** that return an observable of a slice of the state.
+- **Actions**: events dispatched from components and services: describe / trigger state changes.
+- **Reducers**: _pure functions_ (functions no side effect) that take the previous state and the next action to compute the new state.
+- State is accessed within the Store using **selector functions** (_pure functions_) that return an observable of a slice of the state.
 
 These core principles enable building components that can use the `OnPush` change detection strategy to optimize the Angular application.
 
@@ -25,8 +27,8 @@ When we think about the state inside ngrx/store, we should think about a databas
 
 Using redux or ngrx to write an application is much like implementing it following the CQRS guidelines and patterns:
 
-- **Message Driven**: Commands / Events == Actions
-- **Read pipeline**: Projections == State -> Selectors || Actions -> Reducers -> State -> Selectors
+- **Message Driven**: Commands / Events == Actions / (State Change) Notifications.
+- **Read pipeline**: Projections == State -> Selectors || Actions -> Reducers -> State -> Selectors.
 - **Write pipeline**: Command -> Aggregate -> Event == Action -> Reducer -> State || Action -> (Side)Effects -> Actions
 
 There's an emphasized separation between a read and a write pipeline, like the CQRS approach.
@@ -43,7 +45,7 @@ Then import the `StoreModule` in the AppModule.
 
 **1) State**: start defining the application State;
    
-WARNING: the State should be treated as an IMMUTABLE object, you are not allowed to change the value of a single property!
+**WARNING: the State should be treated as an IMMUTABLE object, you are not allowed to change the value of a single property!**
 
     export interface ICounterState {
       count: number;
@@ -54,8 +56,7 @@ WARNING: the State should be treated as an IMMUTABLE object, you are not allowed
       counterState: ICounterState;
     }
 
-**2) Good practice**: provide a state **initial value** to the store:
-
+**2) Good practice**: provide an **initial value** to the store:
     
     export const initialCounterState: ICounterState = {
       count: 0,
@@ -70,7 +71,7 @@ in the AppModule:
 
     StoreModule.forRoot(..., { initialState: initialAppState })
 
-**3) Action**: tell the application what to do in order to change the state:
+**3) Action**: tells the application what to do in order to change the state:
 
     export enum CounterActionTypes {
       INCREMENT = '[Counter] Increment',
@@ -82,11 +83,11 @@ in the AppModule:
 
     export type CounterActions = Increment;
 
-**4) Reducer**: how the application react to actions; how the state is changed.
+**4) Reducer**: defines how the application react to actions; how the state is changed.
 
 A Reducer is a pure function that takes two arguments: the current state and the action to perform, it will return the new instance of the state.
 
-**WARNING: do NOT mutate the state: always return a new oject for the state, this way we guarantee immutability!**
+**WARNING: do NOT mutate the state: always return a new oject, this is the only way we guarantee immutability!**
 
     export function counterReducer(state: ICounterState, action: CounterActions): ICounterState {
       switch (action.type) {
@@ -103,7 +104,7 @@ A Reducer is a pure function that takes two arguments: the current state and the
       }
     }
 
-**5) Configure the StoreModule** with all the reducers: we must feed the **StoreModule.forRoot()** function with an **ActionReducerMap< TState >** object that provide the references to the reducers functions.
+**5) Configure the StoreModule** with all the reducers: we must feed the **StoreModule.forRoot()** function with an **ActionReducerMap&lt;TState&gt;** object that provide the references to the reducers functions.
 
 I usually add this configuration object to the index.ts file inside the reducers folder.
 
