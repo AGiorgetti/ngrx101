@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Actions, Effect } from '@ngrx/effects';
+import { Actions, Effect, ofType } from '@ngrx/effects';
 import { delay, map, tap, filter } from 'rxjs/operators';
 import { CounterActionTypes, Fail, Noop } from '../actions';
 
@@ -8,8 +8,8 @@ export class CounterEffects {
 
   @Effect()
   fail$ = this.actions$
-    .ofType(CounterActionTypes.RANDOM_FAILURE)
     .pipe(
+      ofType(CounterActionTypes.RANDOM_FAILURE),
       tap((a) => console.log(a.type)),
       delay(2000),
       map(() => {
@@ -31,8 +31,8 @@ export class CounterEffects {
   /*
   @Effect()
   fail$ = this.actions$
-    .ofType(CounterActionTypes.RANDOM_FAILURE)
     .pipe(
+      ofType(CounterActionTypes.RANDOM_FAILURE),
       tap((a) => console.log(a.type)),
       delay(2000),
       map(() => {

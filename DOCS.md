@@ -174,23 +174,23 @@ RxJS powered side effect model for @ngrx/store.
 Core principles: 
 
 - Listen for actions dispatched from @ngrx/store.
-- Isolate side effects (access to external services, business logic, etc.) from components, allowing for more 'pure' components that select state and dispatch actions.
+- Isolate side effects (access to external services, business logic, etc.) from components, promoting the creation of more 'pure' components that select state and dispatch actions.
 - Provide new sources of actions based on external interactions such as network requests, web socket messages and time-based events.
-- An Effect must return a non empty array of Actrions that will optionally be fed to the Store by the library itself.
+- An Effect is an Observable<Action> that should emit non empty arrays of Actions that will (optionally) be dispatched to the Store by the library itself.
 
-Effects are injectable service classes, they use the following APIs:
+Effects are _injectable service classes_, they use the following APIs:
 
 **Effect() decorator**
 
 The `@Effect()` decorator provides the metadata to register the effect in the Store.
 
-**Actions service**
+**Actions observable**
 
-Represents an observable 'endpoint' of all the actions dispatched to the store.
+The `Actions` Service represents an observable 'endpoint' of all the actions dispatched to the store.
 
-It emits the latest action after the action itself has passed through all reducers.
+It emits the latest action after it has passed through all reducers.
 
-The '.ofType()' operator let us filter for actions of a certain type, this way we can select which action to use inside the side effect.
+The 'ofType()' operator let us filter for actions of a certain type, this way we can select which action to listen to and use inside the side effect.
 
 ### Setup
 
@@ -202,7 +202,7 @@ import the EffectsModule in the AppModule
 
 ### Basic usage of ngrx/effects
 
-**1) define the effect class** and mark it with the _injectable_ decorator:
+**1) declare the effect class** and mark it with the _injectable_ decorator:
 
     import { Injectable } from '@angular/core';
     import { Actions } from '@ngrx/effects';
@@ -215,7 +215,7 @@ import the EffectsModule in the AppModule
       ) { }
     }
 
-**2) Configure the EffectsModule to accept an array of all the effects**: in the index.ts export an array of all the effects and pass it to the **EffectsModule.forRoot()** configuration function:
+**2) Configure the EffectsModule to accept an array of all the effects**: in the index.ts export an array of all the effects and pass it to the **EffectsModule.forRoot()** configuration function (for feature modules use EffectModule.forFeature()):
 
     export const effects = [ CounterEffects ];
 
@@ -227,8 +227,8 @@ import the EffectsModule in the AppModule
 
     @Effect()
     fail$ = this.actions$
-      .ofType(CounterActionTypes.RANDOM_FAILURE)
       .pipe(
+        ofType(CounterActionTypes.RANDOM_FAILURE)
         delay(2000),
         map(() => {
           // get a number between 1 and 10
@@ -238,34 +238,50 @@ import the EffectsModule in the AppModule
               new Fail()
             ];
           } else {
-            return []; // warning: this will compile, but you'll get runtime errors.
+            return []; // warning: this will compile, but you'll get runtime errors!! see the best  
+                       //          practice below!.
           }
         })
       );
 
 **Best practices**
 
-Side effects that do not dispatch actions at all, use the decorator parameter:
+Side effects that do not dispatch actions at all must specify it in the decorator parameter:
 
     @Effect({ dispatch: false })
 
-Side effect that might not dispatch actions under some conditions, can be implemented in two ways:
+Side effect that might not dispatch actions under some conditions can be implemented in two ways:
 
 1- Return / Dispatch a no-op action.
 
-2- use the observable .filter() operator to avoid the observable proceed if the requirements are not met.
+2- use the observable `filter()` operator to avoid the observable proceed if the requirements are not met.
+
+    @Effect()
+    fail$ = this.actions$
+      .pipe(
+        ofType(CounterActionTypes.RANDOM_FAILURE),
+        tap((a) => console.log(a.type)),
+        delay(2000),
+        map(() => {
+          // get a number between 1 and 10
+          return Math.floor(Math.random() * 10) + 1;
+        }),
+        // tap(num => console.log(num)),
+        filter(num => num < 5),
+        map((num) => new Fail())
+      );
 
 ## ngrx/store-devtools
 
-Store-DevTools is an instrumentation that enables a powerful time-travelling debugger.
+Store-DevTools is an instrumentation library that enables a powerful time-travelling debugger.
 
     npm install @ngrx/store-devtools --save
 
-Also install the Chrome / Firefox Extension
+Also install the Chrome / Firefox Extension.
 
-1- Download the [Redux Devtools Extension](https://github.com/zalmoxisus/redux-devtools-extension/).
+Download and install the [Redux Devtools Extension](https://github.com/zalmoxisus/redux-devtools-extension/).
 
-2- In your AppModule imports enable the instrumentation using **StoreDevtoolsModule.instrument()**:
+In your AppModule imports enable the instrumentation using **StoreDevtoolsModule.instrument({})**:
 
     import { StoreDevtoolsModule } from '@ngrx/store-devtools';
     import { environment } from '../environments/environment'; // Angular CLI environemnt
@@ -281,6 +297,8 @@ Also install the Chrome / Firefox Extension
       ],
     })
     export class AppModule {}
+
+For a complete list of supported instrumentation options click [here](https://ngrx.io/guide/store-devtools/config).
 
 ## ngrx/router-store
 
