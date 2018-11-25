@@ -34,14 +34,15 @@ export class Fail implements Action {
 export class Reset implements Action {
   readonly type = CounterActionTypes.RESET;
 
-  constructor(public payload: number) {}
+  constructor(public payload: number) { }
 }
 
 export class RandomFailure implements Action {
   readonly type = CounterActionTypes.RANDOM_FAILURE;
 }
 
-// the Union type if anther 'trick' to take advantage of TypeScript structural type checking
-// and type inference when writing the reducers (or whatever need to deal with
+// Discriminated Unions (https://www.typescriptlang.org/docs/handbook/advanced-types.html)
+// are another 'trick' to take advantage of TypeScript structural type checking
+// and type inference when writing the reducers (or whatever needs to deal with
 // the stream of actions)
 export type CounterActions = Increment | Decrement | Fail | Reset | RandomFailure;

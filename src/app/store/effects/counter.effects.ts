@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 import { delay, map, tap, filter } from 'rxjs/operators';
-import { CounterActionTypes, Fail, Noop } from '../actions';
+import { CounterActionTypes, Fail, Noop, CounterActions } from '../actions';
 
 @Injectable()
 export class CounterEffects {
@@ -46,6 +46,6 @@ export class CounterEffects {
   */
 
   constructor(
-    private actions$: Actions
+    private actions$: Actions<CounterActions>
   ) { }
 }
