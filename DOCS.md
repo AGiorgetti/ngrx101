@@ -1,9 +1,9 @@
-# ngrx
+# NgRx
 
 NgRx is a framework for building Reactive Applications in Angular.
 
-This sample project will reuse some ideas and code from the official ngrx project documentation.
-The code will be partially rewritten and presented in a different order to explain the ngrx workflow the way I understand and feel more comfortable doing it.
+This sample project will reuse some ideas and code from the official NgRx project documentation.
+The code will be partially rewritten and presented in a different order to explain the NgRx workflow the way I understand and feel more comfortable doing it.
 
 The following libraries will be used:
 
@@ -19,20 +19,20 @@ ngrx/store is a controlled state container.
 Core principles: 
 
 - **State**: is a single, **immutable data structure**.
-- **Actions**: events dispatched from components and services: describe / trigger state changes.
-- **Reducers**: _pure functions_ (functions no side effect) that take the previous state and the next action to compute the new state> the reducers are the only way to change the state inside the Store.
+- **Actions**: events dispatched from components and services, they describe / trigger state changes.
+- **Reducers**: _pure functions_ (functions no side effect) that take the previous state and the next action to compute the new state. The reducers are the only way to change the state inside the Store.
 - State is accessed within the Store using **selector functions** (_pure functions_) that return an observable of a slice of the state.
 
 These core principles enable building components that can use the `OnPush` change detection strategy to optimize the Angular application.
 
 When we think about the state inside ngrx/store, we should think about a database we can query over (using some selector functions).
 
-The result of the [query' is not finite value, but a stream of data delivered over time that describe the evolution of the system.
+The result of this 'query' is not a finite value, but a stream of data delivered over time that describe the evolution of the system.
 
-Using redux or ngrx to write an application is much like implementing it following the CQRS guidelines and patterns in JavaScript / Angular world.
+Using Redux or NgRx to write an application is much like implementing it following the CQRS guidelines and patterns in JavaScript / Angular world.
 
-- **Message Driven**: Commands / Events == Actions / (State Change) Notifications.
-- **Read pipeline**: Projections == State -> Selectors || Actions -> Reducers -> State -> Selectors.
+- **Message Driven**: Commands / Events == Actions / State Change Notifications.
+- **Read pipeline**: Projections == State -> Selectors.
 - **Write pipeline**: Command -> Aggregate -> Event == Action -> Reducer -> State || Action -> (Side)Effects -> Actions.
 
 There's an emphasized separation between a read and a write pipeline, like the CQRS approach.
@@ -45,7 +45,7 @@ Then import the `StoreModule` in the AppModule.
 
     StoreModule.forRoot({}, { initialState: {} })
 
-### The Basic ngrx building blocks and 'workflow'
+### The Basic NgRx building blocks and 'workflow'
 
 **1) State**: start defining the application State;
    
@@ -151,13 +151,13 @@ Inject the `Store` object and call the `dispatch` method:
 
 **Best Practice - beware of Unicast / Cold Observables and Memoization**
 
-Are ngrx observables hot ot cold ? 
+Are NgRx observables hot ot cold ? 
 
 Playing with the sample code you'll see that the store observables are Unicast / Cold: the selectors will be evaluated every time we subscribe to the observables.
 
 Be careful if you have a complex chain of operators and multiple bindings or subscriptions to it.
 
-Using pure selector functions and Memoization (provided by ngrx for free) help avoid the performance issue.
+Using pure selector functions and Memoization (provided by NgRx for free) help avoid the performance issue.
 
 Selectors are pure functions so memoization (a sort-of caching can help reduce the potential performance hit).
 
