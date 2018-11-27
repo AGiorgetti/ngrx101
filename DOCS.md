@@ -21,9 +21,9 @@ Core principles:
 - **State**: is a single, **immutable data structure**.
 - **Actions**: events dispatched from components and services, they describe / trigger state changes.
 - **Reducers**: _pure functions_ (functions no side effect) that take the previous state and the next action to compute the new state. The reducers are the only way to change the state inside the Store.
-- State is accessed within the Store using **selector functions** (_pure functions_) that return an observable of a slice of the state.
+- State is accessed using **selector functions** (_pure functions_) that return an observable of a slice (or a projection) of the state.
 
-These core principles enable building components that can use the `OnPush` change detection strategy to optimize the Angular application.
+These core principles enable building components that can use the `OnPush` change detection strategy (disabling most of the dirty checking / change detection logic) to optimize the Angular application.
 
 When we think about the state inside ngrx/store, we should think about a database we can query over (using some selector functions).
 
@@ -43,13 +43,13 @@ There's an emphasized separation between a read and a write pipeline, like the C
 
 Then import the `StoreModule` in the AppModule.
 
-    StoreModule.forRoot({}, { initialState: {} })
+    StoreModule.forRoot({...}, { initialState: {...} })
 
 ### The Basic NgRx building blocks and 'workflow'
 
 **1) State**: start defining the application State;
    
-**WARNING: the State should be treated as an IMMUTABLE object, you are not allowed to change the value of a single property!**
+**WARNING: the State should be treated as an IMMUTABLE object, you are not allowed to mutate the value of a single property!**
 
     export interface ICounterState {
       count: number;
