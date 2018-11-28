@@ -1,5 +1,5 @@
 import { createSelector } from '@ngrx/store';
-import { IAppState, ICounterState } from '../state';
+import { IAppState } from '../state';
 
 // a selector expose a slice of the state to be consumed by components
 export const counterSelector = createSelector((state: IAppState) => state.counterState);
@@ -16,4 +16,4 @@ export const counterFaultySelector = createSelector(
 );
 
 // selectors created with the 'createSelector' function have many advantages over using plain
-// functions, the most noticieable: composition and memoization.
+// functions, the most noticeable: composition and memoization.

@@ -89,7 +89,7 @@ in the AppModule:
 
 **4) Reducer**: defines how the application react to actions; how the state is changed.
 
-A Reducer is a pure function that takes two arguments: the current state and the Action to perform, it will return the new instance of the state.
+A Reducer is a pure function that takes two arguments: the current state and the Action to perform, it will return a new instance of the state.
 
 Reducers operate synchronously!
 
@@ -141,11 +141,14 @@ or (Best Practice) use a selector function:
 
     this.counter$ = store.pipe(select(counterSelector));
 
-selection functions can be composed!
+Selection functions can be composed!
+
+Memoization is a sort of caching: selectors are pure function, so given the same inputs they return the same output. NgRx establishes a cache so if the input do not change the result of the (previous) elaboration is immediately returned.
+Only the last input will be cached.
 
 **7) Dispatch Actions** to the Store
 
-Inject the `Store` object and call the `dispatch` method:
+Inject the `Store` service and call the `dispatch` method:
 
     this.store.dispatch(new Increment());
 

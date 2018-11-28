@@ -19,7 +19,7 @@ export class AppComponent {
   constructor(
     private store: Store<IAppState>
   ) {
-    // this.counter = store.pipe(select('counterState'));
+    // this.counter$ = store.pipe(select('counterState'));
     this.counter$ = store.pipe(select(counterSelector));
   }
 
