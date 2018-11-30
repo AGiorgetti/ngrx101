@@ -6,12 +6,16 @@ import { CounterActionTypes, Fail, Noop, CounterActions } from '../actions';
 @Injectable()
 export class CounterEffects {
 
-  @Effect()
-  fail$ = this.actions$
+  /**
+   * Make the counter randomly fail:
+   * it will generate a random number, if the number is less than 5
+   * issue a Fail() command to the counter.
+   */
+  @Effect() fail$ = this.actions$
     .pipe(
       ofType(CounterActionTypes.RANDOM_FAILURE),
       tap((a) => console.log(a.type)),
-      delay(2000),
+      delay(2000), // add latency, simulate network call
       map(() => {
         // get a number between 1 and 10
         const num = Math.floor(Math.random() * 10) + 1;
@@ -20,21 +24,20 @@ export class CounterEffects {
           return new Fail();
         } else {
           console.log('All ok!');
-          // dispatching null, [], empty() will all result in an error,
+          // dispatching null, [] or empty() will result in an error,
           // dispatch a no-op action or rewrite the observable with the .filter()
-          // operator to avoid the problem at start
+          // operator to avoid the problem
           return new Noop();
         }
       })
     );
 
   /*
-  @Effect()
-  fail$ = this.actions$
+  @Effect() fail$ = this.actions$
     .pipe(
       ofType(CounterActionTypes.RANDOM_FAILURE),
       tap((a) => console.log(a.type)),
-      delay(2000),
+      delay(2000), // add latency, simulate network call
       map(() => {
         // get a number between 1 and 10
         return Math.floor(Math.random() * 10) + 1;

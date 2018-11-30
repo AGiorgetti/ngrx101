@@ -179,7 +179,7 @@ Core principles:
 - Listen for actions dispatched from @ngrx/store.
 - Isolate side effects (access to external services, business logic, etc.) from components, promoting the creation of more 'pure' components that select state and dispatch actions.
 - Provide new sources of actions based on external interactions such as network requests, web socket messages and time-based events.
-- An Effect is an Observable<Action> that should emit non empty arrays of Actions that will (optionally) be dispatched to the Store by the library itself.
+- An Effect is an Observable<Action | Action[]> that should emit non empty arrays of Actions that will (optionally) be dispatched to the Store by the library itself.
 
 Effects are _injectable service classes_, they use the following APIs:
 
@@ -189,11 +189,11 @@ The `@Effect()` decorator provides the metadata to register the effect in the St
 
 **Actions observable**
 
-The `Actions` Service represents an observable 'endpoint' of all the actions dispatched to the store.
+The `Actions<TActions>` Service represents an observable 'endpoint' of all the actions dispatched to the store.
 
 It emits the latest action after it has passed through all reducers.
 
-The 'ofType()' operator let us filter for actions of a certain type, this way we can select which action to listen to and use inside the side effect.
+The 'ofType()' operator let us filter for actions of a certain type: this way we can select which action to listen to and use inside the side effect.
 
 ### Setup
 
@@ -214,7 +214,7 @@ import the EffectsModule in the AppModule
     export class CounterEffects {
     
       constructor(
-        private actions$: Actions
+        private actions$: Actions<CounterActions>
       ) { }
     }
 
@@ -224,7 +224,7 @@ import the EffectsModule in the AppModule
 
 ...
 
-    EffectsModule.forRoot(effects)
+    EffectsModule.forRoot([...effects])
 
 **3) implement the side effect applying operators to the actions$** observable:
 
@@ -284,7 +284,7 @@ Also install the Chrome / Firefox Extension.
 
 Download and install the [Redux Devtools Extension](https://github.com/zalmoxisus/redux-devtools-extension/).
 
-In your AppModule imports enable the instrumentation using **StoreDevtoolsModule.instrument({})**:
+In your AppModule imports enable the instrumentation using **StoreDevtoolsModule.instrument({...})**:
 
     import { StoreDevtoolsModule } from '@ngrx/store-devtools';
     import { environment } from '../environments/environment'; // Angular CLI environemnt
