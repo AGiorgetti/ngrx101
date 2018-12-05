@@ -11,7 +11,8 @@ interface Action {
 // a string enum is a convenient way to avoid magic strings floating around
 // it will also enable / suport type inference when it comes to write the reducers
 export enum CounterActionTypes {
-  INCREMENT = '[Counter] Increment', // best practice: add some namespacing to provide context to the action
+  INCREMENT = '[Counter] Increment', // best practice: add some namespacing to
+                                     // provide context to the action
   DECREMENT = '[Counter] Decrement',
   FAIL = '[Counter] Fail',
   RESET = '[Counter] Reset',
@@ -19,6 +20,7 @@ export enum CounterActionTypes {
 }
 
 // each action should be described by its own class
+
 export class Increment implements Action {
   readonly type = CounterActionTypes.INCREMENT;
 }
