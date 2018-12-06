@@ -9,9 +9,8 @@ import { IAppState } from '../store/state';
 const memoizedSelector = createSelector(
   counterSelector,
   (state) => {
-    // this log is actually a 'side effect': something that should not be allowed in a pure function.
-    // but you should see just one of these in the console window despite the observable being cold and
-    // evaluated multiple times (one for each binding).
+    // You should see just one of these logs in the console window for every state change
+    // despite the observable being cold and evaluated multiple times (one for each binding).
     console.log('memoized selector: ' + JSON.stringify(state));
     return state.count;
   });

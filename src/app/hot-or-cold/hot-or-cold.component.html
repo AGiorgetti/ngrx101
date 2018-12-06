@@ -1,7 +1,7 @@
-<p>Are ngrx selector observables Hot or Cold ?</p>
+<p>Are NgRx selector observables Unicast or Multicast ?</p>
 
 <pre>Count: {{count$ | async}}</pre>
 <pre>Count: {{count$ | async}}</pre>
 
 <p>Look at the console log: you'll see multiple "hot or cold?" logs, so...</p>
-<p>They are Cold!! The Tap operator is executed again for each binding.</p>
+<p>They are Cold!! The tap() operator is executed for each binding.</p>

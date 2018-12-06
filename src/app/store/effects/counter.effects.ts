@@ -20,10 +20,10 @@ export class CounterEffects {
         // get a number between 1 and 10
         const num = Math.floor(Math.random() * 10) + 1;
         if (num < 5) {
-          console.log('Failure');
+          console.log('Failure!');
           return new Fail();
         } else {
-          console.log('All ok!');
+          console.log('All Ok!');
           // dispatching null, [] or empty() will result in an error,
           // dispatch a no-op action or rewrite the observable with the .filter()
           // operator to avoid the problem

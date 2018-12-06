@@ -1,9 +1,8 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { IAppState } from '../store/state';
-import { Store, select } from '@ngrx/store';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { select, Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import { counterCountSelector } from '../store/selectors';
 import { tap } from 'rxjs/operators';
+import { IAppState } from '../store/state';
 
 @Component({
   selector: 'app-hot-or-cold',
@@ -19,8 +18,8 @@ export class HotOrColdComponent implements OnInit {
     store: Store<IAppState>
   ) {
     this.count$ = store.pipe(
-      tap(() => console.log('hot or cold ?')),
-      select(counterCountSelector)
+      select(state => state.counterState.count),
+      tap(() => console.log('hot or cold ?'))
     );
   }
 
