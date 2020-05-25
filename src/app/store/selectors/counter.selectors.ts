@@ -1,8 +1,9 @@
-import { createSelector } from '@ngrx/store';
+
 import { IAppState } from '../state';
+import { createSelector } from '@ngrx/store';
 
 // a selector exposes a slice of the state to be consumed by components
-export const counterSelector = createSelector((state: IAppState) => state.counterState);
+export const counterSelector = (state: IAppState) => state.counterState;
 
 // selectors can be composed
 export const counterCountSelector = createSelector(
