@@ -39,11 +39,15 @@ There's an emphasized separation between a read and a write pipeline, like the C
 
 ### Setup
 
-    npm install @ngrx/store --save
+```powershell
+npm install @ngrx/store --save
+```
 
 Then import the `StoreModule` in the AppModule.
 
-    StoreModule.forRoot({...}, { initialState: {...} })
+```typescript
+StoreModule.forRoot({...}, { initialState: {...} })
+```
 
 ### The Basic NgRx building blocks and 'workflow'
 
@@ -51,41 +55,49 @@ Then import the `StoreModule` in the AppModule.
    
 **WARNING: the State should be treated as an IMMUTABLE object, you are not allowed to mutate the value of a single property!**
 
-    export interface ICounterState {
-      count: number;
-      faulty: boolean;
-    }
+```typescript
+export interface ICounterState {
+  count: number;
+  faulty: boolean;
+}
 
-    export interface IAppState {
-      counterState: ICounterState;
-    }
+export interface IAppState {
+  counterState: ICounterState;
+}
+```
 
 **2) Good practice**: provide an **initial value** to the store:
-    
-    export const initialCounterState: ICounterState = {
-      count: 0,
-      faulty: false
-    };
 
-    export const initialAppState: IAppState = {
-      counterState: initialCounterState
-    };
+```typescript
+export const initialCounterState: ICounterState = {
+  count: 0,
+  faulty: false
+};
+
+export const initialAppState: IAppState = {
+  counterState: initialCounterState
+};
+```
 
 in the AppModule:
 
-    StoreModule.forRoot(..., { initialState: initialAppState })
+```typescript
+StoreModule.forRoot(..., { initialState: initialAppState })
+```
 
 **3) Action**: tells the application what to do in order to change the state:
 
-    export enum CounterActionTypes {
-      INCREMENT = '[Counter] Increment',
-    }
+```typescript
+export enum CounterActionTypes {
+  INCREMENT = '[Counter] Increment',
+}
 
-    export class Increment implements Action {
-      readonly type = CounterActionTypes.INCREMENT;
-    }
+export class Increment implements Action {
+  readonly type = CounterActionTypes.INCREMENT;
+}
 
-    export type CounterActions = Increment;
+export type CounterActions = Increment;
+```
 
 **4) Reducer**: defines how the application react to actions; how the state is changed.
 
@@ -95,32 +107,37 @@ Reducers operate synchronously!
 
 **WARNING: do NOT mutate the state! Always return a new oject, this is the only way we guarantee immutability!**
 
-    export function counterReducer(state: ICounterState, action: CounterActions): ICounterState {
-      switch (action.type) {
-        case CounterActionTypes.INCREMENT: {
-          return {
-            ...state,
-            count: state.count + 1
-          };
-        }
-
-        default: {
-          return state;
-        }
-      }
+```typescript
+export function counterReducer(state: ICounterState, action: CounterActions): ICounterState {
+  switch (action.type) {
+    case CounterActionTypes.INCREMENT: {
+      return {
+        ...state,
+        count: state.count + 1
+      };
     }
+    default: {
+      return state;
+    }
+  }
+}
+```
 
 **5) Configure the StoreModule** with all the reducers: we must feed the **StoreModule.forRoot()** function with an **ActionReducerMap&lt;TState&gt;** object that provides the references to the reducers functions.
 
 I usually add this configuration object to the index.ts file inside the reducers folder.
 
-    export const reducers: ActionReducerMap<IAppState> = {
-      counterState: counterReducer
-    };
+```typescript
+export const reducers: ActionReducerMap<IAppState> = {
+  counterState: counterReducer
+};
+```
 
 and in the AppModule:
 
-    StoreModule.forRoot(reducers, { initialState: initialAppState })
+```typescript
+StoreModule.forRoot(reducers, { initialState: initialAppState })
+```
 
 **6) Selectors**: expose a slice of the state as observables, thus we get proper notifications when the state changes.
 
@@ -128,18 +145,22 @@ Inject the `Store` object and use the `select` operator to retrieve the Observab
 
 Pass it a string:
 
-    store.pipe(select('counterState'));
+```typescript
+store.pipe(select('counterState'));
+```
 
 or (Best Practice) use a selector function:
 
-    import { createSelector } from '@ngrx/store';
-    import { IAppState } from '../state';
+```typescript
+import { createSelector } from '@ngrx/store';
+import { IAppState } from '../state';
 
-    export const counterSelector = createSelector((state: IAppState) => state.counterState);
+export const counterSelector = createSelector((state: IAppState) => state.counterState);
 
-    ...
+...
 
-    this.counter$ = store.pipe(select(counterSelector));
+this.counter$ = store.pipe(select(counterSelector));
+```
 
 Selection functions can be composed!
 
@@ -150,7 +171,9 @@ Only the last input will be cached.
 
 Inject the `Store` service and call the `dispatch` method:
 
-    this.store.dispatch(new Increment());
+```typescript
+this.store.dispatch(new Increment());
+```
 
 **Best Practice - beware of Unicast / Cold Observables and Memoization**
 
@@ -197,61 +220,73 @@ The 'ofType()' operator let us filter for actions of a certain type: this way we
 
 ### Setup
 
-    npm install @ngrx/effects --save
+```powershell
+npm install @ngrx/effects --save
+```
 
 import the EffectsModule in the AppModule
 
-    EffectsModule.forRoot([...list of effects...])
+```typescript
+EffectsModule.forRoot([...list of effects...])
+```
 
 ### Basic usage of ngrx/effects
 
 **1) declare the effect class** and mark it with the _injectable_ decorator:
 
-    import { Injectable } from '@angular/core';
-    import { Actions } from '@ngrx/effects';
+```typescript
+import { Injectable } from '@angular/core';
+import { Actions } from '@ngrx/effects';
 
-    @Injectable()
-    export class CounterEffects {
-    
-      constructor(
-        private actions$: Actions<CounterActions>
-      ) { }
-    }
+@Injectable()
+export class CounterEffects {
+
+  constructor(
+    private actions$: Actions<CounterActions>
+  ) { }
+}
+```
 
 **2) Configure the EffectsModule to accept an array of all the effects**: in the index.ts export an array of all the effects and pass it to the **EffectsModule.forRoot()** configuration function (for feature modules use EffectModule.forFeature()):
 
-    export const effects = [ CounterEffects ];
+```typescript
+export const effects = [ CounterEffects ];
 
 ...
 
-    EffectsModule.forRoot([...effects])
+EffectsModule.forRoot([...effects])
+```
 
 **3) implement the side effect applying operators to the actions$** observable:
 
-    @Effect()
-    fail$ = this.actions$
-      .pipe(
-        ofType(CounterActionTypes.RANDOM_FAILURE)
-        delay(2000),
-        map(() => {
-          // get a number between 1 and 10
-          const num = Math.floor(Math.random() * 10) + 1;
-          if (num < 5) {
-            return [
-              new Fail()
-            ];
-          } else {
-            return []; // warning: this will compile, but you'll get runtime errors!! see the best  
-                       //          practice below!.
-          }
-        })
-      );
+```typescript
+@Effect()
+fail$ = this.actions$
+  .pipe(
+    ofType(CounterActionTypes.RANDOM_FAILURE)
+    delay(2000),
+    map(() => {
+      // get a number between 1 and 10
+      const num = Math.floor(Math.random() * 10) + 1;
+      if (num < 5) {
+        return [
+          new Fail()
+        ];
+      } else {
+        return []; // warning: this will compile, but you'll get runtime errors!! see the best  
+                   //          practice below!.
+      }
+    })
+  );
+```
 
 **Best practices**
 
 Side effects that do not dispatch actions at all must specify it in the decorator parameter:
 
-    @Effect({ dispatch: false })
+```typescript
+@Effect({ dispatch: false })
+```
 
 Side effect that might not dispatch actions under some conditions can be implemented in two ways:
 
@@ -259,26 +294,30 @@ Side effect that might not dispatch actions under some conditions can be impleme
 
 2- use the observable `filter()` operator to avoid the observable proceed if the requirements are not met.
 
-    @Effect()
-    fail$ = this.actions$
-      .pipe(
-        ofType(CounterActionTypes.RANDOM_FAILURE),
-        tap((a) => console.log(a.type)),
-        delay(2000),
-        map(() => {
-          // get a number between 1 and 10
-          return Math.floor(Math.random() * 10) + 1;
-        }),
-        // tap(num => console.log(num)),
-        filter(num => num < 5),
-        map((num) => new Fail())
-      );
+```typescript
+@Effect()
+fail$ = this.actions$
+  .pipe(
+    ofType(CounterActionTypes.RANDOM_FAILURE),
+    tap((a) => console.log(a.type)),
+    delay(2000),
+    map(() => {
+      // get a number between 1 and 10
+      return Math.floor(Math.random() * 10) + 1;
+    }),
+    // tap(num => console.log(num)),
+    filter(num => num < 5),
+    map((num) => new Fail())
+  );
+```
 
 ## ngrx/store-devtools
 
 Store-DevTools is an instrumentation library that enables a powerful time-travelling debugger.
 
-    npm install @ngrx/store-devtools --save
+```powershell
+npm install @ngrx/store-devtools --save
+```
 
 Also install the Chrome / Firefox Extension.
 
@@ -286,20 +325,23 @@ Download and install the [Redux Devtools Extension](https://github.com/zalmoxisu
 
 In your AppModule imports enable the instrumentation using **StoreDevtoolsModule.instrument({...})**:
 
-    import { StoreDevtoolsModule } from '@ngrx/store-devtools';
-    import { environment } from '../environments/environment'; // Angular CLI environemnt
+```typescript
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { environment } from '../environments/environment'; // Angular CLI environemnt
 
-    @NgModule({
-      imports: [
-        StoreModule.forRoot(reducers),
-        // Instrumentation must be imported after importing StoreModule (config is optional)
-        StoreDevtoolsModule.instrument({
-          maxAge: 25, // Retains last 25 states
-          logOnly: environment.production, // Restrict extension to log-only mode
-        }),
-      ],
-    })
-    export class AppModule {}
+@NgModule({
+  imports: [
+    StoreModule.forRoot(reducers),
+    // Instrumentation must be imported after importing StoreModule (config is optional)
+    StoreDevtoolsModule.instrument({
+      maxAge: 25, // Retains last 25 states
+      logOnly: environment.production, // Restrict extension to log-only mode
+    }),
+  ],
+})
+
+export class AppModule {}
+```
 
 For a complete list of supported instrumentation options click [here](https://ngrx.io/guide/store-devtools/config).
 
