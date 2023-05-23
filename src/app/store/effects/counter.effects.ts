@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Actions, Effect, ofType } from '@ngrx/effects';
+import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { delay, map, tap, filter } from 'rxjs/operators';
 import { CounterActionTypes, Fail, Noop, CounterActions } from '../actions';
 
@@ -11,7 +11,7 @@ export class CounterEffects {
    * it will generate a random number, if the number is less than 5
    * issue a Fail() command to the counter.
    */
-  @Effect() fail$ = this.actions$
+   fail$ = createEffect(() => this.actions$
     .pipe(
       ofType(CounterActionTypes.RANDOM_FAILURE),
       tap((a) => console.log(a.type)),
@@ -30,7 +30,7 @@ export class CounterEffects {
           return new Noop();
         }
       })
-    );
+    ));
 
   /*
   @Effect() fail$ = this.actions$
