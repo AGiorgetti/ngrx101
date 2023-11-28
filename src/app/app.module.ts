@@ -27,7 +27,7 @@ import { HotOrColdComponent } from './hot-or-cold/hot-or-cold.component';
     StoreDevtoolsModule.instrument({
       maxAge: 25,
       logOnly: environment.production
-    })
+    , connectInZone: true})
   ],
   providers: [],
   bootstrap: [AppComponent]
